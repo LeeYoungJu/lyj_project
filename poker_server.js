@@ -63,29 +63,6 @@ module.exports = function(app) {
 	});
 	
 	
-	var Register = io.of('/register').on('connection', function(socket) {
-		socket.on('check', function(data) {			
-			var check_callback = function(err, rows) {
-				if(err) {
-					throw err;
-				} else {
-					if(rows[0]) {
-						var num = rows[0].num;
-					    if(num == 0) {
-						    socket.emit('result', {isSuccess: true, type: data.type, value: data.value});
-					    } else {
-  						    socket.emit('result', {isSuccess: false, type: data.type});
-					    }
-					} else {
-						socket.emit('result', {isSuccess: false, type: data.type});
-					}					
-				}				
-			};
-			
-			conn.check(data.type, data.value, check_callback);
-		});
-	});
-	
 	var room_ready = {};
 	
 	var Room = io.of('/room').on('connection', function(socket) {

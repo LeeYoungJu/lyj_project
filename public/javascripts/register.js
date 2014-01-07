@@ -1,6 +1,4 @@
 $(document).ready(function() {
-	var socket = io.connect('/register');
-	
 	var check_obj = {
 		id: false
 		, nick: false
@@ -62,24 +60,48 @@ $(document).ready(function() {
 	});
 	
 	
-	socket.on('connect', function() {    		
-	    console.log('connect success!');
-    });
     
     $check_button.on('click', function(e) {    	
     	var type = this.id.substr(6);    	
     	var value = $(this).parent().parent().find('input').val();
+    	
+    	if(!value || value.trim() == '') {
+    		alert('빈칸입니다. 다시 입력해주세요.');
+    		$(this).parent().parent().find('input').val('');
+    		$(this).parent().parent().find('input').focus();
+    		return;
+    	}
     	
     	if(type == 'id') {
     		checked_id = value;    		
     	} else if(type == 'nick') {
     		checked_nick = value;    		
     	}    
-    	
-    	socket.emit('check', {type: type, value: value});
+    	param = {type: type, value: value};
+    	$.post('/check', param, function(data) {
+    		var data_type = data.type;
+    			if(data_type == 'id') {
+		    		var type = '아이디';
+    			} else if(data_type == 'nick') {
+    				var type = '닉네임';
+    			}
+    			if(data.isSuccess) {
+    				alert('없는 ' + type + '입니다. 사용하실 수 있습니다.');
+    				check_obj[data_type] = true;
+    				if(data_type == 'id') {
+    					checked_id = data.value;
+    				} else if(data_type == 'nick') {
+    					checked_nick = data.value;
+    				}    		
+    			} else {
+    				alert('이미 존재하는 ' + type + '입니다.');
+    				$('#' + data_type + '_input').val('').focus();
+    			}
+    	});
+    	//socket.emit('check', {type: type, value: value});
     });
     
-    socket.on('result', function(data) {
+    /*socket.on('result', function(data) {
     	var data_type = data.type;
     	if(data_type == 'id') {
     		var type = '아이디';
@@ -98,7 +120,7 @@ $(document).ready(function() {
     		alert('이미 존재하는 ' + type + '입니다.');
     		$('#' + data_type + '_input').val('').focus();
     	}
-    });
+    });*/
 });
 
 

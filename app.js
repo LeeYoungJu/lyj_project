@@ -43,8 +43,7 @@ app.post('/register', routes.register);
 app.get('/register', routes.index);
 app.get('/logout', routes.logout);
 
-app.get('/users', user.list);
-
+app.post('/check', routes.check);
 
 var server = http.createServer(app);
 

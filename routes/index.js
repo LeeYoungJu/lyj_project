@@ -175,6 +175,32 @@ exports.enter_get = function(req, res){
     }
 };
 
+exports.check = function(req, res) {
+	var type = req.body.type;
+	var value = req.body.value;
+	var check_callback = function(err, rows) {
+		if(err) {
+			throw err;
+		} else {
+			if(rows[0]) {
+				var num = rows[0].num;
+			    if(num == 0) {
+			    	res.json({isSuccess: true, type: type, value: value});
+				    //socket.emit('result', {isSuccess: true, type: data.type, value: data.value});
+			    } else {
+			    	res.json({isSuccess: false, type: type});
+  				    //socket.emit('result', {isSuccess: false, type: data.type});
+			    }
+			} else {
+				res.json({isSuccess: false, type: type});
+				//socket.emit('result', {isSuccess: false, type: data.type});
+			}					
+		}				
+	};
+	
+	conn.check(type, value, check_callback);
+};
+
 exports.logout = function(req, res) {
 	if(req.session.user_id) {
 		req.session.user_id = null;
