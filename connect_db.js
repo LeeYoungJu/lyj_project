@@ -21,7 +21,7 @@ var mysqlUtil = module.exports = {
 	insertRoom: function(title, card, room_password, callback) {
 		conn.query(
 			'insert into room set ?'
-			, {room_id: 'NULL', room_title: title, mem_number: 0, ready_level: 0, card: card, password: room_password}
+			, {room_id: 'NULL', room_title: title, mem_number: 0, card: card, password: room_password}
 			, function(err) {
 				conn.query(
 					'select max(room_id) as id from room where room_title = ?'

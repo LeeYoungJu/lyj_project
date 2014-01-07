@@ -28,10 +28,20 @@ $(document).ready(function() {
 	var $make_room_form = $('#make_room_form');
 	$make_room_form.on('submit', function(e) {
 		var e = e || window.event;
+		var title = $('#roomname').val();		
+		
 		if(navigator.appName == 'Microsoft Internet Explorer') {
    		    alert('인터넷 익스플로어로는 사용 불가합니다. 죄송합니다.');
-   		    e.preventDefault();   			
+   		    e.preventDefault();
+   		    return;   			
    	    }  
+   	    
+   	    if(title.trim() == '' || !title) {
+			alert('제목을 입력하세요.');
+			$('#roomname').focus();
+			e.preventDefault();
+			return;
+		}
 	});
 		
 	var $page_indicator_box = $('.page_indicator_box');
@@ -135,6 +145,10 @@ $(document).ready(function() {
 	});
 	
 	function click_enter_button(e) {
+		if(navigator.appName == 'Microsoft Internet Explorer') {
+   		    alert('인터넷 익스플로어로는 사용 불가합니다. 죄송합니다.');   		   
+   		    return;   			
+   	    }  
 		var e = e || window.event;
 		var self = e.target;
 		var room = self.parentNode.parentNode.info;

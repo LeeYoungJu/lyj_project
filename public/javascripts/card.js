@@ -43,7 +43,7 @@ Card.prototype = {
     		//window.setTimeout(self.calulate_chip, 1500);
     		window.setTimeout(function() {
     			self.chip.calculate_chip();
-    		}, 1800);
+    		}, 2400);
     	});
     	
     	this.room.on('die', function(data) {
