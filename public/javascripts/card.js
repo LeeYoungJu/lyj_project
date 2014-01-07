@@ -32,7 +32,7 @@ Card.prototype = {
 		
 		var self = this;
 		this.room.on('open_all_card', function() {	
-			
+			self.chat.showMessage('딜러 : 카드를 오픈하였습니다.');
 			var explain1 = '당신의 카드가 더 높습니다.!<br />칩 획득!';
 			var explain2 = '당신의 카드가 더 낮습니다.<br />배팅한 만큼 칩을 잃었습니다.';
 			var explain3 = '카드가 똑같습니다. 그대로 다음 카드로 넘어갑니다.';			
