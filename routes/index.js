@@ -11,16 +11,6 @@ function bindEvent(obj, func) {
 	};
 }
 
-function makeCard(arr) {		    		
-    var card = '';
-    var max_length = arr.length;
-    for(var i=0; i<max_length; i++) {		    					    			
-   	    var ran_index = Math.round(Math.random() * (arr.length-1));		    			
-    	card += arr.splice(ran_index, 1) + '.';
-    }	
-    card = card.substr(0, card.length-1);
-    return card;
-}
 
 var Room = function(isSuccess, nick, req, res) {
 	this.isSuccess = isSuccess;
