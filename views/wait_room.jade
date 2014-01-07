@@ -2,8 +2,7 @@ extends layout
 
 block content  
   script(src='/javascripts/wait_room.js')
-  - if(isSuccess)
-    h1 현재 서버쪽 문제때문에 잠시 이용하실 수 없습니다. 죄송합니다. 잠시뒤에 방문해주세요...
+  - if(isSuccess)    
     #logout_button.right logout     
     .clear      
     .reload_button 새로고침(방 리스트 새로 갱신)
@@ -33,10 +32,20 @@ block content
         #left_button.left_right_button.left <
         #right_button.left_right_button.left >
       .page_indicator_box     
-      #room_list_box        
-    #desc_rule_box.left
-      img(src='images/game_rule_board.png')
-      #rule_video_button 동영상으로 규칙보기      
+      #room_list_box   
+    
+    #other_function_box.left
+      #menu_button_box
+        #button_user_list.menu_button.left 대기실 유저
+        #button_user_rank.menu_button.left 유저 랭킹
+        #button_user_board.menu_button.left 자유게시판
+        #button_desc_rule.menu_button.left 게임규칙
+      #user_list_box.menu_box  
+      #user_rank_box.menu_box 준비중... 
+      #user_board_box.menu_box 준비중...
+      #desc_rule_box.menu_box
+        img(src='images/game_rule_board.png')
+        #rule_video_button 동영상으로 규칙보기      
     
   - else    
     script(type='text/javascript').        

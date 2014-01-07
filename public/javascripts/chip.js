@@ -7,6 +7,8 @@ var Chip = function() {
     this.your_chip = 30;
     this.my_betted_chip = 0;
     this.your_betted_chip = 0;
+    
+    this.is_my_turn = true;
 }
 
 Chip.prototype = {
@@ -80,7 +82,8 @@ Chip.prototype = {
 
 
 
-	, calculate_chip: function() {				
+	, calculate_chip: function() {
+		
    		if(this.card.my_card > this.card.your_card) {  
    					
    			$('.small_betting_box').css('display', 'none'); 
@@ -99,19 +102,13 @@ Chip.prototype = {
 	   	    this.base_betting();
 	   	        	        		
    		} else {
-   			var is_my_turn = true;
-   			$('.small_betting_box').each(function() {
-   				if($(this).css('display') == 'block') {
-   					is_my_turn = false;
-   					return;
-   				}
-   			});   			
-   			if(is_my_turn) {
+   			if(this.is_my_turn) {
    				$('.small_betting_box').css('display', 'none'); 
    			    $('.first_betting_or_die_box').css('display', 'block');
    			} else {
    				$('.small_betting_box').css('display', 'none');
    			}
+   			
    			   			
    			this.chat.showMessage('DRAW... 비겼습니다. 베팅된 칩 그대로 두고 다음 카드로 넘어갑니다.', '#FF6C6C');
    		}
@@ -133,6 +130,8 @@ Chip.prototype = {
    			return;   			
    			//this.chat.when_exit_room();
    		}
+   		
+   		this.is_my_turn = true;
    		
    		this.show_betted_chip();
    		this.card.next_card();

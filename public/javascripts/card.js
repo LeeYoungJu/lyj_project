@@ -32,6 +32,7 @@ Card.prototype = {
 		
 		var self = this;
 		this.room.on('open_all_card', function() {	
+			
 			var explain1 = '당신의 카드가 더 높습니다.!<br />칩 획득!';
 			var explain2 = '당신의 카드가 더 낮습니다.<br />배팅한 만큼 칩을 잃었습니다.';
 			var explain3 = '카드가 똑같습니다. 그대로 다음 카드로 넘어갑니다.';			
@@ -43,7 +44,7 @@ Card.prototype = {
     		//window.setTimeout(self.calulate_chip, 1500);
     		window.setTimeout(function() {
     			self.chip.calculate_chip();
-    		}, 2400);
+    		}, 2400);    		
     	});
     	
     	this.room.on('die', function(data) {
@@ -112,10 +113,12 @@ Card.prototype = {
     	//this.chip.make_chip('#your_chip_smallbox', this.chip.your_chip, 'your');
 	   	
    		if(this.isMaster == 'master') {
+   			
    			$('.small_betting_box').css('display', 'none');
    			$('.first_betting_or_die_box').css('display', 'block');
 	   		$('.betting_or_die_box').css('display', 'none');
    		} else {
+   			
    			$('.small_betting_box').css('display', 'none');   			
    		}    	
     	
@@ -136,7 +139,7 @@ Card.prototype = {
     		} else if(this.chip.my_chip < this.chip.your_chip) {
     			this.chip.when_win_or_lose_game('lose');
     			alert('게임을 패하셨습니다.');
-    		} else {    			
+    		} else {
     			alert('칩수가 똑같습니다. 비기셨습니다.');
     			if(this.isMaster == 'master') {
     				this.room.emit('one_more_game');
@@ -164,6 +167,7 @@ Card.prototype = {
 	}
 	
     , do_open: function() {
+    	this.chip.is_my_turn = false;
     	$('.small_betting_box').css('display', 'none');    	
     	this.room.emit('open_card');
 	}

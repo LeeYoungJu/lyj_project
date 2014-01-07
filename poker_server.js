@@ -1,4 +1,6 @@
 var conn = require('./connect_db');
+var user_list = require('./user_list');
+
 
 module.exports = function(app) {	
 	var io = require('socket.io').listen(app);
@@ -15,6 +17,21 @@ module.exports = function(app) {
 	});
 	
 	var Room_page = io.of('/room_page').on('connection', function(socket) {
+		socket.on('add_me', function(data) {
+			user_list.add_user(data.user_id, data.nick, data.win, data.lose);
+			var users = user_list.get_user_list();
+			
+			socket.emit('here_user_list', {user_list:users});
+		});
+		
+		socket.on('get_users', function() {
+			
+		});
+		
+		socket.on('remove_me', function(data) {
+			user_list.remove_user(data.user_id);
+		});
+		
 		var get_total_room_callback = function(err, rows) {
 			if(err) {
 				throw err;
@@ -314,19 +331,26 @@ module.exports = function(app) {
 		
 
 		socket.on('leave', function(data) {
-			var user_id = data.user_id;
-			if(joinedRoom) {	
-				if(joinedRoom in room_ready) {
-					if(user_id in room_ready[joinedRoom]) {
-						room_ready[joinedRoom]['ready']--;
-						delete room_ready[joinedRoom][user_id];
-						
-						socket.broadcast.to(joinedRoom).emit('ready_cancel');
-					} 
+			if(data.user_id) {
+				var user_id = data.user_id;
+				if(joinedRoom) {	
+					if(joinedRoom in room_ready) {
+						if(user_id in room_ready[joinedRoom]) {
+							room_ready[joinedRoom]['ready']--;
+							delete room_ready[joinedRoom][user_id];
+							
+							socket.broadcast.to(joinedRoom).emit('ready_cancel');
+						} 
+					}
+										
+					conn.subtract_mem_number(joinedRoom, leave_callback);				
 				}
-									
-				conn.subtract_mem_number(joinedRoom, leave_callback);				
-			}
+			} else {
+				if(joinedRoom) {
+					conn.subtract_mem_number(joinedRoom, leave_callback);
+				}				
+				socket.emit('error', {desc: '데이터를 읽는 과정 중 에러가 발생했습니다.'});
+			}			
 		});
 	});
 }

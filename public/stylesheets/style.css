@@ -25,10 +25,78 @@ a {
 	
 }
 
-#desc_rule_box {
+#other_function_box {
 	position:relative;
-	box-shadow: 0 0 35px black;	
+}
+
+#menu_button_box {
+	width: 710px;
+	height: 70px;
+	position:absolute;	
 	margin: 55px 0 0 70px;
+}
+
+.menu_button {
+	padding: 15px;
+	margin: 0 50px 0 0;
+	color:#8C8C8C;
+	font-weight:bold;
+	font-size: 18px;
+	cursor:pointer;
+	border-bottom: 2px dashed #8C8C8C; 
+	
+}
+
+.menu_button:hover {
+	color:#5D5D5D;
+	box-shadow: 0 0 3px #5D5D5D;
+}
+
+.menu_box {
+	width: 700px;
+	display:none;
+	position:absolute;
+	top: 100px;
+	margin: 55px 0 0 70px;	
+}
+
+.user_list {
+	height: 15px;
+	padding: 10px;
+	border-bottom: 1px dashed white;	
+}
+
+.user_nick {
+	width: 450px;
+	text-align:center;
+} 
+
+.user_win_lose {
+	width: 100px;
+	text-align:center;
+	font-weight:100;
+}
+
+#user_list_box {		
+	background: #8C8C8C;
+	color:white;
+	font-weight:bold;
+}
+
+#user_rank_box {
+	
+}
+
+#user_board_box {
+	
+}
+
+#desc_rule_box {		
+	
+	
+	box-shadow: 0 0 35px black;	
+	
+	
 }
 
 #rule_video_button {

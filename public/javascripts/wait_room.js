@@ -1,6 +1,37 @@
 $(document).ready(function() {
 	var socket = io.connect('/room_page');
 	var user_id = $('#user_id').val();
+	var nick = $('.user_nick').text();	
+	var $user_list_box = $('#user_list_box');
+	
+	var $menu_button = $('.menu_button');
+	
+	socket.on('here_user_list', function(data) {
+		$user_list_box.empty();
+		var user_list = data.user_list;
+		for(user in user_list) {
+			$user_list_box.append(make_user_list_div(user_list[user]));
+		}
+	});
+	
+	function make_user_list_div(user) {
+		var nick = user[0];
+		var win = user[1];
+		var lose = user[2];
+		
+		var div = document.createElement('div');
+		div.className = 'user_list';
+		
+		html = '<div class="user_common user_nick left">' + nick + '</div>' +
+		       '<div class="user_common user_win_lose left">' + win + ' 승</div>' +
+		       '<div class="user_common user_win_lose left">' + lose + ' 패</div>';
+		       
+		div.innerHTML = html;
+		
+		return div;       
+	}
+	
+	
 		
 	var room_page = {
 		no: 0
@@ -20,8 +51,9 @@ $(document).ready(function() {
 	input_loading_div();
 	
 	var $win_lose_box = $('#win_lose_box');	
-	socket.on('here_win_lose', function(data) {
-		var html = data.win + '승 ' + data.lose + '패';
+	socket.on('here_win_lose', function(data) {	
+		socket.emit('add_me', {user_id:user_id, nick:nick, win: data.win, lose: data.lose});	
+		var html = data.win + '승 ' + data.lose + '패';		
 		$win_lose_box.html(html);
 	});
 	
@@ -204,6 +236,20 @@ $(document).ready(function() {
 		
 		socket.emit('go_other_page', {start: start, list_num: room_page.list_num, is_there_password: is_there_password});
 	});
+	
+	$menu_button.on('click', function(e) {
+		var e = e || window.event;
+		var self = e.target;
+		var button_type = self.id.substr(7);
+		
+		$('.menu_box').css('display', 'none');						
+		
+		$('#' + button_type + '_box').fadeIn('fast');
+	});
+	
+	$(window).on('beforeunload', function() {
+        socket.emit('remove_me', {user_id: user_id});
+    });
 });
 
 
