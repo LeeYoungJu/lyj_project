@@ -6,6 +6,8 @@ block content
     #logout_button.right logout     
     .clear      
     .reload_button 새로고침(방 리스트 새로 갱신)
+    #footer.right 개발자 이메일 : dmlqhqhqh@naver.com
+    .clear
     input#user_id(type='hidden' value='#{user_id}')
     #room_list_box_wrapper.left  
       #welcome_box
@@ -45,7 +47,7 @@ block content
       #user_board_box.menu_box 준비중...
       #desc_rule_box.menu_box
         img(src='images/game_rule_board.png')
-        #rule_video_button 동영상으로 규칙보기      
+        #rule_video_button 동영상으로 규칙보기
     
   - else    
     script(type='text/javascript').        

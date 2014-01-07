@@ -25,7 +25,9 @@ module.exports = function(app) {
 		});
 		
 		socket.on('get_users', function() {
+			var users = user_list.get_user_list();
 			
+			socket.emit('here_user_list', {user_list:users});
 		});
 		
 		socket.on('remove_me', function(data) {

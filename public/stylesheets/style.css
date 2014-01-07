@@ -77,7 +77,22 @@ a {
 	font-weight:100;
 }
 
+.reload_user_list_button {
+	display:inline;
+	cursor:pointer;
+	padding: 10px;
+	background:white;
+	border-radius: 5px;
+	border: 2px solid #930000;
+	color:#930000;
+}
+.reload_user_list_button:hover {
+	background:#930000;
+	color:white;
+}
+
 #user_list_box {		
+	display:block;
 	background: #8C8C8C;
 	color:white;
 	font-weight:bold;
@@ -421,11 +436,12 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a90329', end
             }
             
             .loading {
-            	width: 480px;
+            	width: 100%;
             	font-size: 20px;
             	color: #489CFF;
             	font-weight:bold;
             	text-align:center;
+            	background:white;
             }
             
             #room_password {

@@ -6,13 +6,29 @@ $(document).ready(function() {
 	
 	var $menu_button = $('.menu_button');
 	
-	socket.on('here_user_list', function(data) {
+	socket.on('here_user_list', function(data) {		
 		$user_list_box.empty();
+		$user_list_box.append(make_reload_user_list_button());
 		var user_list = data.user_list;
 		for(user in user_list) {
 			$user_list_box.append(make_user_list_div(user_list[user]));
 		}
+		
+		$('.reload_user_list_button').click(function() {
+			input_loading_div($user_list_box);
+			socket.emit('get_users');
+		});
 	});
+	
+	function make_reload_user_list_button() {
+		var div = document.createElement('div');
+		div.className = 'reload_user_list_button';
+		
+		html = '대기실 유저 새로 갱신'
+		
+		div.innerHTML = html;
+		return div;
+	}
 	
 	function make_user_list_div(user) {
 		var nick = user[0];
@@ -48,7 +64,7 @@ $(document).ready(function() {
 	});
 	
 	var $room_list_box = $('#room_list_box');
-	input_loading_div();
+	input_loading_div($room_list_box);
 	
 	var $win_lose_box = $('#win_lose_box');	
 	socket.on('here_win_lose', function(data) {	
@@ -102,10 +118,10 @@ $(document).ready(function() {
 		toggle_password_checkbox($(this));
 	});
 	
-	function input_loading_div() {
-		$room_list_box.empty();
+	function input_loading_div(box) {
+		box.empty();
 		var loading = '<div class="loading">loading . . . </div>';
-		$room_list_box.append(loading);
+		box.append(loading);
 	}
 	
 	function toggle_password_checkbox(password_checkbox) {
@@ -122,7 +138,7 @@ $(document).ready(function() {
 	
 	var $password_room_filter = $('.password_room_filter');
 	$password_room_filter.on('click', function() {
-		input_loading_div();
+		input_loading_div($room_list_box);
 		room_page.is_there_password =  $(this).val();
 		
 		socket.emit('get_total', {is_there_password: room_page.is_there_password})
@@ -140,7 +156,7 @@ $(document).ready(function() {
 	
 	$left_button.on('click', function() {		
 		if(room_page.no>0) {
-			input_loading_div();
+			input_loading_div($room_list_box);
 			room_page.no--;
 			var start = room_page.no * room_page.list_num;
 		
@@ -154,7 +170,7 @@ $(document).ready(function() {
 			return;
 		}
 		if((room_page.no+1) < room_page.total) {
-			input_loading_div();						
+			input_loading_div($room_list_box);						
 			room_page.no++;
 		    var start = room_page.no * room_page.list_num;
 		    
@@ -226,7 +242,7 @@ $(document).ready(function() {
 	});
 	
 	$reload_button.on('click', function() {
-		input_loading_div();
+		input_loading_div($room_list_box);
 		var is_there_password =  'all'
 		
 		socket.emit('get_total', {is_there_password: is_there_password})
