@@ -1,6 +1,6 @@
 var conn = require('./connect_db');
 var user_list = require('./user_list');
-
+var socket_list = require('./save_socket');
 
 module.exports = function(app) {	
 	var io = require('socket.io').listen(app);
@@ -17,8 +17,9 @@ module.exports = function(app) {
 	});
 	
 	var Room_page = io.of('/room_page').on('connection', function(socket) {
-		socket.on('add_me', function(data) {
+		socket.on('add_me', function(data) {			
 			user_list.add_user(data.user_id, data.nick, data.win, data.lose);
+			socket_list.add_socket(data.user_id, socket);
 			var users = user_list.get_user_list();
 			
 			socket.emit('here_user_list', {user_list:users});
@@ -32,6 +33,46 @@ module.exports = function(app) {
 		
 		socket.on('remove_me', function(data) {
 			user_list.remove_user(data.user_id);
+			socket_list.remove_socket(data.user_id);
+		});
+		
+		socket.on('ask_fight', function(data, callback) {
+			var other_user_socket = socket_list.get_socket(data.res_user_id);
+			if(other_user_socket) {
+				other_user_socket.emit('asked_fight', {nick: data.nick, req_user_id: data.req_user_id, res_user_id: data.res_user_id});
+				callback(true);
+			} else {
+				callback(false);
+			}
+		});
+		
+		socket.on('reponse_fight', function(data) {			
+			var other_user_socket = socket_list.get_socket(data.req_user_id);
+			if(data.ok_sign) {
+				var sign = true;
+			} else {
+				var sign = false;
+			}
+			other_user_socket.emit('reponse_result', {sign:sign, req_user_id: data.req_user_id, res_user_id: data.res_user_id})
+		});
+		
+		socket.on('make_room', function(data) {
+			var title = data.title;
+			var card = require('./make_card')();
+			var room_password = null;
+			
+			var other_user_socket = socket_list.get_socket(data.res_user_id);
+			
+			var select_room_id_callback = function(err, rows) {
+			  	if(err) {
+	  				throw err;
+	  			}
+	  			
+	  			room_id = rows[0].id;
+	  			socket.emit('go_game_room', {title: title, room_id: room_id, isMaster: 'master'});
+	  			other_user_socket.emit('go_game_room', {title: title, room_id: room_id, isMaster: 'guest'});
+	  		};
+	  		conn.insertRoom(title, card, room_password, select_room_id_callback);
 		});
 		
 		var get_total_room_callback = function(err, rows) {

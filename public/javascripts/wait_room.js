@@ -1,23 +1,75 @@
 $(document).ready(function() {
 	var socket = io.connect('/room_page');
+	
+	var other_user_nick = null; 
+	
 	var user_id = $('#user_id').val();
-	var nick = $('.user_nick').text();	
+	var nick = $('.user_nick').text().trim();	
 	var $user_list_box = $('#user_list_box');
 	
 	var $menu_button = $('.menu_button');
 	
-	socket.on('here_user_list', function(data) {		
+	socket.on('here_user_list', function(data) {				
 		$user_list_box.empty();
 		$user_list_box.append(make_reload_user_list_button());
 		var user_list = data.user_list;
-		for(user in user_list) {
-			$user_list_box.append(make_user_list_div(user_list[user]));
+		for(user in user_list) {			
+			$user_list_box.append(make_user_list_div(user_list[user], user));
 		}
+		
+		$('.ask_fight_button').click(function(e) {
+			if(!other_user_nick) {
+				var e = e || window.event;
+				var self = e.target;
+				
+				other_user_nick = $(self).parent().find('.user_nick').text().trim();
+				
+				var req_user_id = user_id
+				var res_user_id = self.id.substr(4);
+							
+				socket.emit('ask_fight', {req_user_id: req_user_id, res_user_id: res_user_id, nick: nick}, function(isSuccess) {
+					if(isSuccess) {
+						alert('대결신청을 완료하였습니다.');
+					} else {
+						alert('상대방이 없습니다.');
+					}				
+				});
+			} else {
+				alert('대결신청이 진행중입니다.');
+			}	 		
+		});
 		
 		$('.reload_user_list_button').click(function() {
 			input_loading_div($user_list_box);
 			socket.emit('get_users');
 		});
+	});
+	
+	socket.on('asked_fight', function(data) {
+		if(confirm(data.nick + '님이 대결을 신청하였습니다. 받아들이시겠습니까?')) {
+			var ok_sign = true;			
+		} else {
+			var ok_sign = false;
+		}
+		socket.emit('reponse_fight', {ok_sign: ok_sign, req_user_id: data.req_user_id, res_user_id: data.res_user_id});
+	});
+	
+	socket.on('reponse_result', function(data) {		
+		if(data.sign) {			
+			var title = nick + ' VS ' + other_user_nick
+			socket.emit('make_room', {title: title, res_user_id: data.res_user_id});
+		} else {
+			alert('거절당했습니다.');
+			other_user_nick = null;
+		}
+	});
+	
+	socket.on('go_game_room', function(data) {		
+		var title = data.title;
+		var room_id = data.room_id;
+		var isMaster = data.isMaster;
+		
+		window.location.href = '/join/' + title + '/' + room_id + '/' + isMaster;
 	});
 	
 	function make_reload_user_list_button() {
@@ -30,21 +82,26 @@ $(document).ready(function() {
 		return div;
 	}
 	
-	function make_user_list_div(user) {
+	function make_user_list_div(user, data_user_id) {			
 		var nick = user[0];
 		var win = user[1];
 		var lose = user[2];
+		
+		if(user_id !== data_user_id) {
 		
 		var div = document.createElement('div');
 		div.className = 'user_list';
 		
 		html = '<div class="user_common user_nick left">' + nick + '</div>' +
 		       '<div class="user_common user_win_lose left">' + win + ' 승</div>' +
-		       '<div class="user_common user_win_lose left">' + lose + ' 패</div>';
+		       '<div class="user_common user_win_lose left">' + lose + ' 패</div>' +
+		       '<div id="ask_' + data_user_id + '" class="user_common ask_fight_button left">대결신청</div>';
 		       
 		div.innerHTML = html;
 		
-		return div;       
+		return div;
+		       
+		}
 	}
 	
 	

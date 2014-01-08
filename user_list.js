@@ -10,12 +10,10 @@ module.exports = {
 			this.user_list[id] = [];
 			this.user_list[id][0] = nick;
 			this.user_list[id][1] = win;
-			this.user_list[id][2] = lose;
+			this.user_list[id][2] = lose;			
 		}			
 	}
-	
-	 
-	
+		
 	, remove_user: function(id) {
 		if(id in this.user_list) {
 			delete this.user_list[id];			

@@ -72,9 +72,20 @@ a {
 } 
 
 .user_win_lose {
-	width: 100px;
+	width: 75px;
 	text-align:center;
 	font-weight:100;
+}
+
+.ask_fight_button {
+	background:#A50000;
+	width: 80px;
+	text-align:center;
+	cursor:pointer;
+	font-size:12px;
+}
+.ask_fight_button:hover {
+	
 }
 
 .reload_user_list_button {

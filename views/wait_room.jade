@@ -15,7 +15,7 @@ block content
         님 환영합니다.
         #win_lose_box
       #make_room_box      
-        form#make_room_form(action='/makeRoom', method='POST')        
+        form#make_room_form(action='/makeRoom', method='POST', name='make_room_form')        
           input(type='text', id='roomname', name='roomname')
           input.make_room_button(type='submit', value='방 만들기')
           #room_password_box
