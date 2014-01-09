@@ -3,6 +3,7 @@ extends layout
 block content
   script(src='/javascripts/common_function.js')
   script(src='/javascripts/board.js')
+  script(src='/javascripts/ranking.js')
   script(src='/javascripts/wait_room.js')
   - if(isSuccess)    
     #logout_button.right logout     
@@ -13,9 +14,14 @@ block content
     input#user_id(type='hidden' value='#{user_id}')
     #room_list_box_wrapper.left  
       #welcome_box
-        span.user_nick #{nickname}        
-        님 환영합니다.
-        #win_lose_box
+        #show_nick_box
+          span.user_nick #{nickname}        
+          님 환영합니다.        
+        #win_lose_box.left
+        #score_rate_box.left
+        .clear
+        #renew_my_score 내 점수 업데이트
+        span (수시로 업데이트하세요 그리고 본인의 랭킹 확인하세요!)
       #make_room_box      
         form#make_room_form(action='/makeRoom', method='POST', name='make_room_form')        
           input(type='text', id='roomname', name='roomname')
@@ -49,22 +55,16 @@ block content
         #left_button.left_right_button.left <
         #right_button.left_right_button.left >
       .page_indicator_box     
-      #room_list_box   
+      #room_list_box    
     
-    #select_game_type_when_ask
-      input.game_type_when_ask(type='radio', value="until_turn", name='game_type', checked='checked')
-      span 턴
-      input.game_type_when_ask(type='radio', value="until_chip", name='game_type')
-      span 칩
-      input#go_fight_button(type='button', value='신청')
     #other_function_box.left
       #menu_button_box
-        #button_user_list.menu_button.left 대기실 유저
+        #button_user_list.menu_button.selected_menu.left 대기실 유저
         #button_user_board.menu_button.left 한마디
         #button_user_rank.menu_button.left 유저 랭킹        
         #button_desc_rule.menu_button.left 게임규칙
       #user_list_box.menu_box  
-      #user_rank_box.menu_box 준비중... 
+      #user_rank_box.menu_box  
       #user_board_box.menu_box
         #write_form_box
           textarea#write_form

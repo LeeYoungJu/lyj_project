@@ -53,17 +53,19 @@ module.exports = function(app) {
 			} else {
 				var sign = false;
 			}
-			other_user_socket.emit('reponse_result', {sign:sign, req_user_id: data.req_user_id, res_user_id: data.res_user_id})
+			if(other_user_socket) {
+				other_user_socket.emit('reponse_result', {sign:sign, req_user_id: data.req_user_id, res_user_id: data.res_user_id})
+			} else {
+				socket.emit('notice', {desc: '상대방이 없습니다.'});
+			}
+			
 		});
 		
 		socket.on('make_room', function(data) {
 			var title = data.title;
 			var card = require('./make_card')();
 			var room_password = null;
-			var game_type = data.game_type			
-			
-			var other_user_socket = socket_list.get_socket(data.res_user_id);
-			
+			var game_type = data.game_type
 			var select_room_id_callback = function(err, rows) {
 			  	if(err) {
 	  				throw err;
@@ -72,8 +74,14 @@ module.exports = function(app) {
 	  			room_id = rows[0].id;
 	  			socket.emit('go_game_room', {title: title, room_id: room_id, game_type: game_type, isMaster: 'master'});
 	  			other_user_socket.emit('go_game_room', {title: title, room_id: room_id, game_type: game_type, isMaster: 'guest'});
-	  		};
-	  		conn.insertRoom(title, card, room_password, game_type, select_room_id_callback);
+	  		};			
+			
+			var other_user_socket = socket_list.get_socket(data.res_user_id);
+			if(!other_user_socket) {
+				socket.emit('notice', {desc: '상대방이 없습니다.'});				
+			} else {
+				conn.insertRoom(title, card, room_password, game_type, select_room_id_callback);
+			}
 		});
 		
 		var get_total_room_callback = function(err, rows) {

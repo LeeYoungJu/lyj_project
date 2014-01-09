@@ -149,6 +149,20 @@ exports.register = function(req, res) {
     }
 };
 
+exports.renew_score = function(req, res) {
+	var user_id = req.body.user_id; 
+	var score =  req.body.score;
+	var rate = req.body.rate;
+	
+	var renew_score_callback = function(err) {
+		if(err) {
+			throw err;
+		}
+		res.json({isSuccess:true, score: score, rate: rate});
+	}
+	conn.update_score(user_id, score, rate, renew_score_callback);
+};
+
 exports.enter = function(req, res) {	
 	  
 	var room = new Room(false, null, req, res);    

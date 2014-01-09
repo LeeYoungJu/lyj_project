@@ -17,7 +17,7 @@ module.exports = {
 		} else {
 			return false;
 		}
-	}	 
+	}
 	
 	, remove_socket: function(id) {
 		if(id in this.socket_list) {

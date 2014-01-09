@@ -6,6 +6,7 @@
 var express = require('express');
 var routes = require('./routes');
 var board = require('./routes/board');
+var rank = require('./routes/rank');
 var http = require('http');
 var path = require('path');
 var socketio = require('socket.io');
@@ -43,11 +44,14 @@ app.post('/register', routes.register);
 app.get('/register', routes.index);
 app.get('/logout', routes.logout);
 app.post('/check', routes.check);
+app.post('/renew_score', routes.renew_score);
 
 app.get('/load_total', board.load_total);
 app.post('/load_board', board.load);
 app.post('/write', board.write);
 app.post('/delete_write', board.delete_write);
+
+app.post('/load_rank', rank.load_rank);
 
 var server = http.createServer(app);
 

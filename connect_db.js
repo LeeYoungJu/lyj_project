@@ -117,21 +117,21 @@ var mysqlUtil = module.exports = {
 	
 	, load_rooms: function(start, list_num, is_there_password, game_type, callback) {		
 		if(is_there_password == 'yes' && game_type == 'all') {
-			var load_room_query = 'select * from room where mem_number < 2 and password is not NULL order by room_id desc limit ?, ?'
+			var load_room_query = 'select * from room where mem_number = 1 and password is not NULL order by room_id desc limit ?, ?'
 		} else if(is_there_password == 'yes') {
-			var load_room_query = 'select * from room where mem_number < 2 and password is not NULL and game_type = \'' + game_type + '\' order by room_id desc limit ?, ?'
+			var load_room_query = 'select * from room where mem_number = 1 and password is not NULL and game_type = \'' + game_type + '\' order by room_id desc limit ?, ?'
 		} 
 		
 		else if(is_there_password == 'no' && game_type == 'all') {
-			var load_room_query = 'select * from room where mem_number < 2 and password is NULL order by room_id desc limit ?, ?'
+			var load_room_query = 'select * from room where mem_number = 1 and password is NULL order by room_id desc limit ?, ?'
 		} else if(is_there_password == 'no') {
-			var load_room_query = 'select * from room where mem_number < 2 and password is NULL and game_type = \'' + game_type + '\' order by room_id desc limit ?, ?'
+			var load_room_query = 'select * from room where mem_number = 1 and password is NULL and game_type = \'' + game_type + '\' order by room_id desc limit ?, ?'
 		} 
 		
 		else if(is_there_password == 'all' && game_type == 'all') {
-			var load_room_query = 'select * from room where mem_number < 2 order by room_id desc limit ?, ?'
+			var load_room_query = 'select * from room where mem_number = 1 order by room_id desc limit ?, ?'
 		} else if(is_there_password == 'all') {
-			var load_room_query = 'select * from room where mem_number < 2 and game_type = \'' + game_type + '\' order by room_id desc limit ?, ?'
+			var load_room_query = 'select * from room where mem_number = 1 and game_type = \'' + game_type + '\' order by room_id desc limit ?, ?'
 		}
 		
 		conn.query(
@@ -144,21 +144,21 @@ var mysqlUtil = module.exports = {
 	, get_total_room: function(is_there_password, game_type, callback) {
 		
 		if(is_there_password == 'yes' && game_type == 'all') {
-			var get_total_query = 'select count(*) as num from room where mem_number < 2 and password is not NULL'
+			var get_total_query = 'select count(*) as num from room where mem_number = 1 and password is not NULL'
 		} else if(is_there_password == 'yes') {
-			var get_total_query = 'select count(*) as num from room where mem_number < 2 and password is not NULL and game_type = \'' + game_type + '\'';
+			var get_total_query = 'select count(*) as num from room where mem_number = 1 and password is not NULL and game_type = \'' + game_type + '\'';
 		}
 		
 		else if(is_there_password == 'no' && game_type == 'all') {
-			var get_total_query = 'select count(*) as num from room where mem_number < 2 and password is NULL'
+			var get_total_query = 'select count(*) as num from room where mem_number = 1 and password is NULL'
 		} else if(is_there_password == 'no') {
-			var get_total_query = 'select count(*) as num from room where mem_number < 2 and password is NULL and game_type = \'' + game_type + '\'';
+			var get_total_query = 'select count(*) as num from room where mem_number = 1 and password is NULL and game_type = \'' + game_type + '\'';
 		}
 		
 		else if(is_there_password == 'all' && game_type == 'all') {
-			var get_total_query = 'select count(*) as num from room where mem_number < 2'
+			var get_total_query = 'select count(*) as num from room where mem_number = 1'
 		} else if(is_there_password == 'all') {
-			var get_total_query = 'select count(*) as num from room where mem_number < 2 and game_type = \'' + game_type + '\'';
+			var get_total_query = 'select count(*) as num from room where mem_number = 1 and game_type = \'' + game_type + '\'';
 		}
 		
 		conn.query(
@@ -264,8 +264,23 @@ var mysqlUtil = module.exports = {
 	
 	, register: function(id, pass, nick, callback) {
 		conn.query(
-			'insert into user_info values (?, sha1(?), ?, ?, ?)'
-			, [id, pass, 0, 0, nick]
+			'insert into user_info values (?, sha1(?), ?, ?, ?, ?, ?)'
+			, [id, pass, 0, 0, nick, 0, 0]
+			, callback
+		);
+	}
+	
+	, load_rank: function(start, list_num, type, callback) {
+		conn.query(
+			'select * from user_info order by ' + type + ' desc limit ' + start + ', ' + list_num
+			, callback
+		);
+	}
+	
+	, update_score: function(id, score, rate, callback) {
+		conn.query(
+			'update user_info set total_score = ?, win_rate = ? where id = ?'
+			, [score, rate, id]
 			, callback
 		);
 	}

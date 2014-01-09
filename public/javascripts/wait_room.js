@@ -1,5 +1,17 @@
 $(document).ready(function() {
 	var socket = io.connect('/room_page');
+	var WIN_SCORE = 3;
+	var LOSE_SCORE = -1;
+	
+	var user_info = {
+		
+	}
+	var user_id = $('#user_id').val();
+	var nick = $('.user_nick').text().trim();
+	
+	$(window).on('beforeunload', function() {
+        socket.emit('remove_me', {user_id: user_id});
+    });
 	
 	var other_user_nick = null; 
 	
@@ -13,18 +25,15 @@ $(document).ready(function() {
 	
 	var ask = {
 		game_type: 'until_turn'
-	}
-	
-	
-	
-	var user_id = $('#user_id').val();
-	var nick = $('.user_nick').text().trim();
+	}	
 	
 	var $select_game_type_when_ask = $('#select_game_type_when_ask');
 		
 	var $user_list_box = $('#user_list_box');
 	
 	var $menu_button = $('.menu_button');
+	
+	var $renew_my_score = $('#renew_my_score');
 	
 	socket.on('here_user_list', function(data) {				
 		$user_list_box.empty();
@@ -34,40 +43,31 @@ $(document).ready(function() {
 			$user_list_box.append(make_user_list_div(user_list[user], user));
 		}
 		
-		$('.ask_fight_button').click(function(e) {	
-					
-			if(!other_user_nick) {
-				var e = e || window.event;
+		$('.game_type_when_ask').on('change', function() {
+		    ask.game_type = $(this).val();		    		
+	    });
+	    
+	    $('.go_fight_button').click(function(e) {
+	    	if(!other_user_nick) {
+	    		var e = e || window.event;
 				var self = e.target;
-				e.stopPropagation();
+				other_user_nick = $(self).parent().parent().find('.user_nick').text().trim();			
 				
-				$(self).parent().find('#select_game_type_when_ask').remove();
-				$(self).parent().append($select_game_type_when_ask);
-				$select_game_type_when_ask.slideToggle('fast');
-				
-				$('.game_type_when_ask').on('change', function() {
-		            ask.game_type = $(this).val();			
-	            });
-				
-				$('#go_fight_button').unbind('click');
-				$('#go_fight_button').click(function() {
-					other_user_nick = $(self).parent().find('.user_nick').text().trim();
-					
-					var req_user_id = user_id
-					var res_user_id = self.id.substr(4);
-								
-					socket.emit('ask_fight', {req_user_id: req_user_id, res_user_id: res_user_id, nick: nick}, function(isSuccess) {
-						if(isSuccess) {
-							alert('대결신청을 완료하였습니다.');
-						} else {
-							alert('상대방이 없습니다.');
-						}				
-					});					
+				var req_user_id = user_id
+				var res_user_id = self.id.substr(7);
+							
+							
+				socket.emit('ask_fight', {req_user_id: req_user_id, res_user_id: res_user_id, nick: nick}, function(isSuccess) {
+					if(isSuccess) {
+						alert('대결신청을 완료하였습니다.');
+					} else {
+						alert('상대방이 없습니다.');
+					}				
 				});
 			} else {
 				alert('대결신청이 진행중입니다.');
-			}	 		
-		});
+			}
+		});		
 		
 		$('.reload_user_list_button').click(function() {
 			input_loading_div($user_list_box);
@@ -103,6 +103,29 @@ $(document).ready(function() {
 		window.location.href = '/join/' + title + '/' + room_id + '/' + game_type + '/' + isMaster;
 	});
 	
+	$renew_my_score.on('click', bindEvent(this, click_renew_score_button));
+	function click_renew_score_button(e) {
+		if(user_info.win || user_info.lose) {
+			var score_arr = caculate_score(user_info.win, user_info.lose);	
+			var score = score_arr[0];
+			var rate = score_arr[1];
+			
+			var param = {user_id: user_id, score: score, rate: rate};
+			$.post('/renew_score', param, function(data) {
+				if(data.isSuccess) {
+					var text = '점수 : ' + data.score + '점, 승률  : ' + data.rate + '%';
+					$('#score_rate_box.left').text(text);
+				} else {
+					alert("업데이트를 실패하였습니다.");
+				}
+			});
+		} else if(user_info.win == 0 && user_info.lose == 0) {
+			alert('아직 전적이 없습니다.');
+		} else {
+			alert('승, 패 로딩중입니다. 잠시만 기다려 주세요.');
+		}	
+	}
+	
 	function make_reload_user_list_button() {
 		var div = document.createElement('div');
 		div.className = 'reload_user_list_button';
@@ -113,10 +136,18 @@ $(document).ready(function() {
 		return div;
 	}
 	
+	function caculate_score(win, lose) {
+		var score = (win * WIN_SCORE) + (lose * LOSE_SCORE);
+		var rate = Math.ceil((win/(win + lose))*100);
+		
+		return [score, rate];
+	}
+	
 	function make_user_list_div(user, data_user_id) {			
-		var nick = user[0];
-		var win = user[1];
-		var lose = user[2];
+		var nick = user[0];		
+		
+		user_info.win = user[1];
+		user_info.lose = user[2];
 		
 		if(user_id !== data_user_id) {
 		
@@ -124,15 +155,31 @@ $(document).ready(function() {
 		div.className = 'user_list';
 		
 		html = '<div class="user_common user_nick left">' + nick + '</div>' +
-		       '<div class="user_common user_win_lose left">' + win + ' 승</div>' +
-		       '<div class="user_common user_win_lose left">' + lose + ' 패</div>' +
-		       '<div id="ask_' + data_user_id + '" class="user_common ask_fight_button left">대결신청</div>';
+		       '<div class="user_common user_win_lose left">' + user_info.win + ' 승</div>' +
+		       '<div class="user_common user_win_lose left">' + user_info.lose + ' 패</div>';
+		       //'<div id="ask_' + data_user_id + '" class="user_common ask_fight_button left">대결신청</div>';
+		       
+		html += make_go_fight_box(data_user_id);
 		       
 		div.innerHTML = html;
 		
 		return div;
 		       
 		}
+	}
+	
+	function make_go_fight_box(id) {		
+		var html = '<div class="select_game_type_when_ask left">';
+		
+		   html += '<input class="game_type_when_ask" type="radio" value="until_turn" name="' + id + '_game_type" checked="checked" />' +
+		           '<span>턴</span>' +
+		           '<input class="game_type_when_ask" type="radio" value="until_chip" name="' + id + '_game_type" />' +
+		           '<span>칩</span>' +
+		           '<input id="button_' + id + '" class="go_fight_button" type="button" value="신청" />';
+		           
+		   html += '</div>';
+		
+		return html; 
 	}
 	
 	
@@ -371,7 +418,12 @@ $(document).ready(function() {
 		
 		if(button_type == 'user_board') {
 			init_board();			
-		}					
+		} else if(button_type == 'user_rank') {
+			init_rank();
+		}				
+		
+		$('.menu_button').removeClass('selected_menu');
+		$(self).addClass('selected_menu');
 		
 		$('#' + button_type + '_box').fadeIn('fast');
 	});
@@ -381,9 +433,16 @@ $(document).ready(function() {
 		board.init(user_id, nick);
 	}
 	
-	$(window).on('beforeunload', function() {
-        socket.emit('remove_me', {user_id: user_id});
-    });
+	function init_rank() {		
+		var rank = new Rank();		
+		rank.init(user_id, nick);
+	}
+	
+	
+	socket.on('notice', function(data) {
+		alert(data.desc);
+	})
+	
 });
 
 
