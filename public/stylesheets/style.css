@@ -7,6 +7,12 @@ a {
   color: #00B7FF;
 }
 
+.word_break {
+	overflow: hidden; 
+    word-break: break-all; 
+    word-wrap: break-word; 
+}
+
 .select_box {
 	padding: 10px;
 	background: #FFF2E6;
@@ -90,6 +96,7 @@ a {
 	border: 1px solid #4374D9;
 	box-shadow: 0 0 5px black;
 	margin: 0 0 15px 0;
+	background: #F7FFFF;
 }
 
 .buttons_in_board {

@@ -11,6 +11,7 @@ var Board = function() {
     this.$write_form = $('#write_form');
     this.$write_button = $('#write_button');
     
+    this.$write_button.unbind('click');
     this.$write_button.on('click', bindEvent(this, this.click_write_button));
 }
 
@@ -138,7 +139,7 @@ Board.prototype = {
 			        //'<div class="button_edit buttons_in_board right">수정</div>';
 		}
 		
-		html += '<div class="clear"></div><div class="msg_in_board">' + list.msg + '</div>';
+		html += '<div class="clear"></div><div class="msg_in_board word_break">' + list.msg + '</div>';
 		       
 		div.innerHTML = html;
 		return div;       
