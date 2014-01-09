@@ -1,6 +1,8 @@
 extends layout
 
-block content  
+block content
+  script(src='/javascripts/common_function.js')
+  script(src='/javascripts/board.js')
   script(src='/javascripts/wait_room.js')
   - if(isSuccess)    
     #logout_button.right logout     
@@ -18,33 +20,57 @@ block content
         form#make_room_form(action='/makeRoom', method='POST', name='make_room_form')        
           input(type='text', id='roomname', name='roomname')
           input.make_room_button(type='submit', value='방 만들기')
+          #game_type_box   
+            span 게임 방식 선택 :          
+            input(type='radio', value="until_turn", name='game_type', checked='checked')
+            span 턴 끝날때까지         
+            input(type='radio', value="until_chip", name='game_type')
+            span 칩 떨어질때까지
           #room_password_box
             input#password_checkbox(type='checkbox', is_password='no')
             span 비밀번호 걸기
             input#room_password(type='text' name='room_password')
-          
-      .room_type_select_box
-        input.password_room_filter(type='radio', name='is_there_password', value='all' checked='checked')
-        span 전체보기
-        input.password_room_filter(type='radio', name='is_there_password', value='yes')
-        span 비밀번호 있는 방
-        input.password_room_filter(type='radio', name='is_there_password', value='no')
-        span 비밀번호 없는 방   
+      .select_box
+        .room_type_select_box
+          input.password_room_filter(type='radio', name='is_there_password', value='all' checked='checked')
+          span 전체보기
+          input.password_room_filter(type='radio', name='is_there_password', value='yes')
+          span 비밀번호 있는 방
+          input.password_room_filter(type='radio', name='is_there_password', value='no')
+          span 비밀번호 없는 방
+        .room_type_select_box
+          input.game_type_button(type='radio', name='select_game_type', value='all' checked='checked')
+          span 전체보기
+          input.game_type_button(type='radio', name='select_game_type', value='until_turn')
+          span 턴 끝날때까지
+          input.game_type_button(type='radio', name='select_game_type', value='until_chip')
+          span 칩 떨어질때까지
       .left_right_box
         #left_button.left_right_button.left <
         #right_button.left_right_button.left >
       .page_indicator_box     
       #room_list_box   
     
+    #select_game_type_when_ask
+      input.game_type_when_ask(type='radio', value="until_turn", name='game_type', checked='checked')
+      span 턴
+      input.game_type_when_ask(type='radio', value="until_chip", name='game_type')
+      span 칩
+      input#go_fight_button(type='button', value='신청')
     #other_function_box.left
       #menu_button_box
         #button_user_list.menu_button.left 대기실 유저
-        #button_user_rank.menu_button.left 유저 랭킹
-        #button_user_board.menu_button.left 자유게시판
+        #button_user_board.menu_button.left 한마디
+        #button_user_rank.menu_button.left 유저 랭킹        
         #button_desc_rule.menu_button.left 게임규칙
       #user_list_box.menu_box  
       #user_rank_box.menu_box 준비중... 
-      #user_board_box.menu_box 준비중...
+      #user_board_box.menu_box
+        #write_form_box
+          textarea#write_form
+          input#write_button(type='button', value='글쓰기')
+        #board_list_box  
+        
       #desc_rule_box.menu_box
         img(src='images/game_rule_board.png')
         #rule_video_button 동영상으로 규칙보기

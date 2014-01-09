@@ -42,7 +42,7 @@ Room.prototype = {
 	}
 	
 	, load_rooms: function() {
-		conn.load_rooms(0, 10, 'all', bindEvent(this, this.load_rooms_callback));
+		conn.load_rooms(0, 10, 'all', 'all', bindEvent(this, this.load_rooms_callback));
 	}	 
 }
 
@@ -71,8 +71,8 @@ Login.prototype = {
 		this.room.load_rooms();
 	}
 	
-	, do_login: function() {
-		conn.login(this.id, this.pass, bindEvent(this, this.login_callback));
+	, do_login: function() {		
+		conn.login(this.id, this.pass, bindEvent(this, this.login_callback));		
 	}	
 	
 };
@@ -149,7 +149,8 @@ exports.register = function(req, res) {
     }
 };
 
-exports.enter = function(req, res) {  
+exports.enter = function(req, res) {	
+	  
 	var room = new Room(false, null, req, res);    
     
     var id = req.body.id;
@@ -214,7 +215,8 @@ exports.logout = function(req, res) {
 exports.makeRoom = function(req, res){
   var isSuccess = false
   , title = req.body.roomname
-  , room_password = req.body.room_password;
+  , room_password = req.body.room_password
+  , game_type = req.body.game_type;
   if(!room_password || room_password == '') {
   	room_password = null;
   }
@@ -234,9 +236,10 @@ exports.makeRoom = function(req, res){
 	  		isSuccess: isSuccess
 	  		, roomid: room_id
 	  		, roomname: title
+	  		, game_type: game_type
 	  	});
 	  };
-	  conn.insertRoom(title, card, room_password, select_room_id_callback);   	  
+	  conn.insertRoom(title, card, room_password, game_type, select_room_id_callback);   	  
   }
 };
 
@@ -250,7 +253,7 @@ exports.load_rooms = function(req, res){
 exports.join = function(req, res){
 	var isSuccess = false
 	, roomid = req.params.id
-	, roomName = req.params.title;
+	, roomName = req.params.title;	
 	if(room_id && roomName && roomName != '') {
 		isSuccess = true;
 	}
@@ -261,6 +264,7 @@ exports.join = function(req, res){
 	    , roomName: roomName
 	    , nickName: req.session.nick
 	    , user_id: req.session.user_id
+	    , game_type: req.params.game_type
 	    , isMaster: req.params.isMaster		
     });
 };

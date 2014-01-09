@@ -60,6 +60,7 @@ module.exports = function(app) {
 			var title = data.title;
 			var card = require('./make_card')();
 			var room_password = null;
+			var game_type = data.game_type			
 			
 			var other_user_socket = socket_list.get_socket(data.res_user_id);
 			
@@ -69,10 +70,10 @@ module.exports = function(app) {
 	  			}
 	  			
 	  			room_id = rows[0].id;
-	  			socket.emit('go_game_room', {title: title, room_id: room_id, isMaster: 'master'});
-	  			other_user_socket.emit('go_game_room', {title: title, room_id: room_id, isMaster: 'guest'});
+	  			socket.emit('go_game_room', {title: title, room_id: room_id, game_type: game_type, isMaster: 'master'});
+	  			other_user_socket.emit('go_game_room', {title: title, room_id: room_id, game_type: game_type, isMaster: 'guest'});
 	  		};
-	  		conn.insertRoom(title, card, room_password, select_room_id_callback);
+	  		conn.insertRoom(title, card, room_password, game_type, select_room_id_callback);
 		});
 		
 		var get_total_room_callback = function(err, rows) {
@@ -92,8 +93,8 @@ module.exports = function(app) {
 			socket.emit('here_room_list', {rooms: rows});
 		};
 		
-		conn.get_total_room('all', get_total_room_callback);		
-		conn.load_rooms(0, 10, 'all', load_page_callback);
+		conn.get_total_room('all', 'all', get_total_room_callback);		
+		conn.load_rooms(0, 10, 'all', 'all', load_page_callback);
 		
 		
 		socket.on('get_win_lose', function(data) {
@@ -112,13 +113,13 @@ module.exports = function(app) {
 			conn.get_user_win_lose(user_id, get_user_win_lose_callback)
 		});
 		
-		socket.on('get_total', function(data) {
-			conn.get_total_room(data.is_there_password, get_total_room_callback);
+		socket.on('get_total', function(data) {			
+			conn.get_total_room(data.is_there_password, data.game_type, get_total_room_callback);
 		});
 		
 		
 		socket.on('go_other_page', function(data) {
-			conn.load_rooms(data.start, data.list_num, data.is_there_password, load_page_callback);
+			conn.load_rooms(data.start, data.list_num, data.is_there_password, data.game_type, load_page_callback);
 		});		
 	});
 	
@@ -183,6 +184,13 @@ module.exports = function(app) {
 				socket.broadcast.to(joinedRoom).emit('go_one_more_game');
 			}
 			conn.update_card(joinedRoom, card, one_more_game_callback);
+		});
+		
+		socket.on('card_refill', function() {
+			var card = require('./make_card')();
+			
+			socket.emit('here_card', {card: card});
+			socket.broadcast.to(joinedRoom).emit('here_card', {card: card});
 		});
 		
 		socket.on('send_my_nick', function(data) {

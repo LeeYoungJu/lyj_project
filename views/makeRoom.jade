@@ -3,7 +3,7 @@ extends layout
 block content
   - if(isSuccess)    
     script.      
-      location.href = '/join/#{roomname}/#{roomid}/master';
+      location.href = '/join/#{roomname}/#{roomid}/#{game_type}/master';
   - else if(roomname === '')
     script.
       alert('방을 만들지 못했습니다.');

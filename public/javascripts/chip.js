@@ -231,8 +231,8 @@ Chip.prototype = {
     		return;
     	}
     	
-    	if(betting_chip < 0) {
-    		alert('음수는 입력하실 수 없습니다.');
+    	if(betting_chip <= 0) {
+    		alert('음수 혹은 0은 입력하실 수 없습니다.');
     		$('#betting_form').val('');
     		$('#betting_form').focus();
     		return;

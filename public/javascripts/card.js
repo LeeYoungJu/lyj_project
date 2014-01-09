@@ -1,4 +1,6 @@
-var Card = function() {
+var Card = function() {	
+	this.DELAY_TIME = 2200;
+	this.MAX_TURN = 20;
 	this.my_card_box = $('#my_card_box');
     this.your_card_box = $('#your_card_box');
 	
@@ -8,6 +10,9 @@ var Card = function() {
    	
    	this.turn = 0;
    	this.isMaster = $('#isMaster').val();
+   	
+   	this.game_type = $('#game_type').val();  
+   	 	
 };
 
 Card.prototype = {	
@@ -44,7 +49,7 @@ Card.prototype = {
     		//window.setTimeout(self.calulate_chip, 1500);
     		window.setTimeout(function() {
     			self.chip.calculate_chip();
-    		}, 2400);    		
+    		}, self.DELAY_TIME);    		
     	});
     	
     	this.room.on('die', function(data) {
@@ -77,9 +82,25 @@ Card.prototype = {
      		$(self.chip.betting_box).empty();
    			$(self.chip.betting_box).append(self.makeResultView(explain1, explain2));
      		
-     		window.setTimeout(function() {
+     		window.setTimeout(function() {     			
     			self.chip.calculate_chip();
-    		}, 1500);     		 	    		
+    		}, self.DELAY_TIME);     		 	    		
+    	});
+    	
+    	this.room.on('here_card', function(data) {   
+    		 		
+    		self.card_arr = data.card.split('.');    		
+    		self.turn = 0;
+    		
+    		window.setTimeout(function() {    			
+    			self.next_card();
+    			self.chip.show_betted_chip();
+    			
+    			if(self.chip.is_my_turn) {
+    				$('.first_betting_or_die_box').css('display', 'block');
+    			}
+    			
+    		}, self.DELAY_TIME);
     	});
 	}
 	
@@ -131,21 +152,42 @@ Card.prototype = {
 	}
 	
     , next_card: function() {    	
-    	if(this.turn == 20) {
-    		if(this.chip.my_chip > this.chip.your_chip) {
-    			this.chip.when_win_or_lose_game('win');
-    			alert('게임을 이기셨습니다. 1승이 올라갑니다.');
-    			this.room.emit('one_more_game');    			
-    		} else if(this.chip.my_chip < this.chip.your_chip) {
-    			this.chip.when_win_or_lose_game('lose');
-    			alert('게임을 패하셨습니다.');
-    		} else {
-    			alert('칩수가 똑같습니다. 비기셨습니다.');
-    			if(this.isMaster == 'master') {
-    				this.room.emit('one_more_game');
+    	if(this.turn == this.MAX_TURN) {
+    		if(this.game_type == 'until_turn') {
+    			if(this.chip.my_chip > this.chip.your_chip) {
+    				this.chip.when_win_or_lose_game('win');
+    				alert('게임을 이기셨습니다. 1승이 올라갑니다.');
+    				this.room.emit('one_more_game');    			
+    			} else if(this.chip.my_chip < this.chip.your_chip) {
+	    			this.chip.when_win_or_lose_game('lose');
+    				alert('게임을 패하셨습니다.');
+    			} else {
+    				alert('칩수가 똑같습니다. 비기셨습니다.');
+    				if(this.isMaster == 'master') {
+    					this.room.emit('one_more_game');
+    				}
+    			}    		
+    			return;
+    		} else {    			
+    			if($('.first_betting_or_die_box').css('display') == 'block') {
+    				this.chip.is_my_turn = true;
+    			} else {
+    				this.chip.is_my_turn = false;
     			}
-    		}    		
-    		return;
+    			
+    			$('.first_betting_or_die_box').css('display', 'none');    			
+    			
+    			var desc = '카드를 리필중입니다.';
+    			$(this.chip.betting_box).empty();
+    			$(this.chip.betting_box).append(this.makeResultView(desc, desc, desc));    			
+    			
+    			if(this.isMaster == 'master') {    				
+    				this.room.emit('card_refill');
+    			}
+    			
+    			return;
+    		}
+    		
     		//this.chat.when_exit_room(); 		
     	}
     	

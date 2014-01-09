@@ -1,19 +1,7 @@
 $(document).ready(function() {	
-    var room = io.connect('/room'); 
-        
-    
-    var my_state_button = $('#my_state');    
-    var your_state_button = $('#your_state');
-    
-    var $leave_button = $('#leave');        
-     
-    var $my_win_lose_box = $('#my_win_lose_box');
-    var $your_win_lose_box = $('#your_win_lose_box');
-        
-    var $my_nick_box = $('#my_nick');
-    var $your_nick_box = $('#your_nick');
-    
-    var card_obj = new Card();
+	var room = io.connect('/room');
+	
+	var card_obj = new Card();    
     var chip_obj = new Chip();
     var chat_obj = new Chat();
     
@@ -26,26 +14,58 @@ $(document).ready(function() {
     
     card_obj.set_chat_obj(chat_obj);
     chip_obj.set_chat_obj(chat_obj);
+    
+    var $my_win_lose_box = $('#my_win_lose_box');
+    var $your_win_lose_box = $('#your_win_lose_box');
         
-    room.on('connect', function() {        	
+    var $my_nick_box = $('#my_nick');
+    var $your_nick_box = $('#your_nick');
+	
+	room.on('leaved', function(data) {    
+    	card_obj.makeMeMaster();	
+    	chat_obj.showMessage('상대방이 나갔습니다.');
+    	
+    	$your_win_lose_box.slideUp('fast');
+        $your_nick_box.slideUp('fast');
+    });
+    
+    $(window).on('beforeunload', function() {
+        chat_obj.when_exit_room();
+    });
+	
+     
+        
+    
+    var my_state_button = $('#my_state');    
+    var your_state_button = $('#your_state');
+    
+    var $leave_button = $('#leave');        
+     
+    
+    
+    
+        
+    room.on('connect', function() { 
+              	
         $my_nick_box.text(chat_obj.nick);
    		$my_nick_box.slideDown('normal');   				
 	    room.emit('join', {roomName:$('#roomName').text(), nick:chat_obj.nick, room_id: chat_obj.room_id, user_id: chat_obj.user_id});
 	    room.emit('get_win_lose', {user_id:chat_obj.user_id});
     });
     
-    room.on('here_win_lose', function(data) {
+    room.on('here_win_lose', function(data) {    	
     	var html = data.win + '승 ' + data.lose + '패';
     	if(data.user_id == chat_obj.user_id) {
-    		$my_win_lose_box.html(html);
+    		$my_win_lose_box.html(html);    		
     	} else {    		
     		$your_win_lose_box.html(html);    		
     		room.emit('send_win_lose_one_more', {win_lose: $my_win_lose_box.html()});
     	}
     });
     
-    room.on('here_master_win_lose', function(data) {
+    room.on('here_master_win_lose', function(data) {    	    	
     	$your_win_lose_box.html(data.win_lose);
+    	$your_win_lose_box.slideDown('fast');
     });
     
     room.on('joined', function(data) {
@@ -204,14 +224,7 @@ $(document).ready(function() {
     	window.location.href = '/enter';
     });
    
-    room.on('leaved', function(data) {    
-    	card_obj.makeMeMaster();	
-    	chat_obj.showMessage('상대방이 나갔습니다.');
-    });
     
-    $(window).on('beforeunload', function() {
-        chat_obj.when_exit_room();
-    });
 })  
 
 

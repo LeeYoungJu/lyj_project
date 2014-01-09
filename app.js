@@ -5,7 +5,7 @@
 
 var express = require('express');
 var routes = require('./routes');
-var user = require('./routes/user');
+var board = require('./routes/board');
 var http = require('http');
 var path = require('path');
 var socketio = require('socket.io');
@@ -35,15 +35,19 @@ app.get('/', routes.index);
 app.post('/enter', routes.enter);
 app.get('/enter', routes.enter_get);
 app.post('/makeRoom', routes.makeRoom);
-app.get('/join/:title/:id/:isMaster', routes.join);
+app.get('/join/:title/:id/:game_type/:isMaster', routes.join);
 app.get('/play', routes.game_room);
 app.post('/play', routes.game_room);
 app.get('/register_form', routes.register_form);
 app.post('/register', routes.register);
 app.get('/register', routes.index);
 app.get('/logout', routes.logout);
-
 app.post('/check', routes.check);
+
+app.get('/load_total', board.load_total);
+app.post('/load_board', board.load);
+app.post('/write', board.write);
+app.post('/delete_write', board.delete_write);
 
 var server = http.createServer(app);
 

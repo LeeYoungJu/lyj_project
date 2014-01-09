@@ -3,8 +3,25 @@ $(document).ready(function() {
 	
 	var other_user_nick = null; 
 	
+	
+	var room_page = {
+		no: 0
+		, list_num: 10	
+		, is_there_password: 'all'
+		, game_type: 'all'	
+	};
+	
+	var ask = {
+		game_type: 'until_turn'
+	}
+	
+	
+	
 	var user_id = $('#user_id').val();
-	var nick = $('.user_nick').text().trim();	
+	var nick = $('.user_nick').text().trim();
+	
+	var $select_game_type_when_ask = $('#select_game_type_when_ask');
+		
 	var $user_list_box = $('#user_list_box');
 	
 	var $menu_button = $('.menu_button');
@@ -17,22 +34,35 @@ $(document).ready(function() {
 			$user_list_box.append(make_user_list_div(user_list[user], user));
 		}
 		
-		$('.ask_fight_button').click(function(e) {
+		$('.ask_fight_button').click(function(e) {	
+					
 			if(!other_user_nick) {
 				var e = e || window.event;
 				var self = e.target;
+				e.stopPropagation();
 				
-				other_user_nick = $(self).parent().find('.user_nick').text().trim();
+				$(self).parent().find('#select_game_type_when_ask').remove();
+				$(self).parent().append($select_game_type_when_ask);
+				$select_game_type_when_ask.slideToggle('fast');
 				
-				var req_user_id = user_id
-				var res_user_id = self.id.substr(4);
-							
-				socket.emit('ask_fight', {req_user_id: req_user_id, res_user_id: res_user_id, nick: nick}, function(isSuccess) {
-					if(isSuccess) {
-						alert('대결신청을 완료하였습니다.');
-					} else {
-						alert('상대방이 없습니다.');
-					}				
+				$('.game_type_when_ask').on('change', function() {
+		            ask.game_type = $(this).val();			
+	            });
+				
+				$('#go_fight_button').unbind('click');
+				$('#go_fight_button').click(function() {
+					other_user_nick = $(self).parent().find('.user_nick').text().trim();
+					
+					var req_user_id = user_id
+					var res_user_id = self.id.substr(4);
+								
+					socket.emit('ask_fight', {req_user_id: req_user_id, res_user_id: res_user_id, nick: nick}, function(isSuccess) {
+						if(isSuccess) {
+							alert('대결신청을 완료하였습니다.');
+						} else {
+							alert('상대방이 없습니다.');
+						}				
+					});					
 				});
 			} else {
 				alert('대결신청이 진행중입니다.');
@@ -57,7 +87,7 @@ $(document).ready(function() {
 	socket.on('reponse_result', function(data) {		
 		if(data.sign) {			
 			var title = nick + ' VS ' + other_user_nick
-			socket.emit('make_room', {title: title, res_user_id: data.res_user_id});
+			socket.emit('make_room', {title: title, res_user_id: data.res_user_id, game_type: ask.game_type});
 		} else {
 			alert('거절당했습니다.');
 			other_user_nick = null;
@@ -67,9 +97,10 @@ $(document).ready(function() {
 	socket.on('go_game_room', function(data) {		
 		var title = data.title;
 		var room_id = data.room_id;
+		var game_type = data.game_type
 		var isMaster = data.isMaster;
 		
-		window.location.href = '/join/' + title + '/' + room_id + '/' + isMaster;
+		window.location.href = '/join/' + title + '/' + room_id + '/' + game_type + '/' + isMaster;
 	});
 	
 	function make_reload_user_list_button() {
@@ -106,11 +137,7 @@ $(document).ready(function() {
 	
 	
 		
-	var room_page = {
-		no: 0
-		, list_num: 10	
-		, is_there_password: 'all'	
-	};
+	
 	
 	socket.emit('get_win_lose', {user_id: user_id});	
 	
@@ -175,11 +202,7 @@ $(document).ready(function() {
 		toggle_password_checkbox($(this));
 	});
 	
-	function input_loading_div(box) {
-		box.empty();
-		var loading = '<div class="loading">loading . . . </div>';
-		box.append(loading);
-	}
+	
 	
 	function toggle_password_checkbox(password_checkbox) {
 		if(password_checkbox.attr('is_password') == 'yes') {
@@ -194,17 +217,38 @@ $(document).ready(function() {
 	}
 	
 	var $password_room_filter = $('.password_room_filter');
-	$password_room_filter.on('click', function() {
+	$password_room_filter.on('change', function() {
 		input_loading_div($room_list_box);
 		room_page.is_there_password =  $(this).val();
 		
-		socket.emit('get_total', {is_there_password: room_page.is_there_password})
+		get_rooms();
+	});
+	
+	
+	var $game_type_button = $('.game_type_button');
+	$game_type_button.on('change', function() {
+		input_loading_div($room_list_box);
+		room_page.game_type =  $(this).val();
+		
+		get_rooms();
+	});
+	
+	function get_rooms() {
+		get_total();
 		
 		room_page.no = 0;
 		var start = room_page.no * room_page.list_num;
 		
-		socket.emit('go_other_page', {start: start, list_num: room_page.list_num, is_there_password: room_page.is_there_password});
-	});
+		go_other_page(start);
+	}
+	
+	function go_other_page(start) {
+		socket.emit('go_other_page', {start: start, list_num: room_page.list_num, is_there_password: room_page.is_there_password, game_type: room_page.game_type});
+	}
+	
+	function get_total() {		
+		socket.emit('get_total', {is_there_password: room_page.is_there_password, game_type: room_page.game_type})
+	}
 	
 	var $rule_video_button = $('#rule_video_button');
 	$rule_video_button.on('click', function() {
@@ -217,7 +261,7 @@ $(document).ready(function() {
 			room_page.no--;
 			var start = room_page.no * room_page.list_num;
 		
-		    socket.emit('go_other_page', {start: start, list_num: room_page.list_num, is_there_password: room_page.is_there_password});
+		    go_other_page(start);
 		}		
 	});
 	
@@ -231,7 +275,7 @@ $(document).ready(function() {
 			room_page.no++;
 		    var start = room_page.no * room_page.list_num;
 		    
-		    socket.emit('go_other_page', {start: start, list_num: room_page.list_num, is_there_password: room_page.is_there_password});
+		    go_other_page(start);
 		}	
 	});
 	
@@ -261,6 +305,7 @@ $(document).ready(function() {
 			
 		var room_title = room.room_title;		
 		var room_id = room.room_id;
+		var game_type = room.game_type;
 		if(room.password) {
 			var origin_room_password = room.password;
 			var input_room_password = password_box.val();
@@ -271,7 +316,7 @@ $(document).ready(function() {
 			}
 		}
 		
-		window.location.href= '/join/' + room_title + '/' + room_id + '/guest';
+		window.location.href= '/join/' + room_title + '/' + room_id + '/' + game_type + '/guest';
 	}
 	
 	function make_room_list(room) {
@@ -280,6 +325,13 @@ $(document).ready(function() {
 		div.info = room;
 		var html = '<div class="room_title_and_enter_button"><div class="room_title left">' + room.room_title + '</div>' +
 		           '<div class="enter_button left">입장</div></div>';
+		
+		if(room.game_type == 'until_turn') {
+			html += '<div class="token_turn_or_chip token_turn">턴</div>';
+		} else if(room.game_type == 'until_chip') {
+			html += '<div class="token_turn_or_chip token_chip">칩</div>'
+		}
+		           
 		if(room.password) {
 			html += '<div class="input_room_password">방 비밀번호 입력 : <input type="text" class="room_password_text"></div>'
 			
@@ -302,12 +354,12 @@ $(document).ready(function() {
 		input_loading_div($room_list_box);
 		var is_there_password =  'all'
 		
-		socket.emit('get_total', {is_there_password: is_there_password})
+		get_total();
 		
 		room_page.no = 0;
 		var start = room_page.no * room_page.list_num;
 		
-		socket.emit('go_other_page', {start: start, list_num: room_page.list_num, is_there_password: is_there_password});
+		go_other_page(start);
 	});
 	
 	$menu_button.on('click', function(e) {
@@ -315,10 +367,19 @@ $(document).ready(function() {
 		var self = e.target;
 		var button_type = self.id.substr(7);
 		
-		$('.menu_box').css('display', 'none');						
+		$('.menu_box').css('display', 'none');	
+		
+		if(button_type == 'user_board') {
+			init_board();			
+		}					
 		
 		$('#' + button_type + '_box').fadeIn('fast');
 	});
+	
+	function init_board() {
+		var board = new Board()
+		board.init(user_id, nick);
+	}
 	
 	$(window).on('beforeunload', function() {
         socket.emit('remove_me', {user_id: user_id});
