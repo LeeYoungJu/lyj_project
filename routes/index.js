@@ -37,7 +37,8 @@ Room.prototype = {
   	        isSuccess: this.isSuccess
   	        , nickname: this.nick
   	        , user_id: this.req.session.user_id
-  	        , roomList: rows  	
+  	        , roomList: rows
+  	        , title: '인디언 포커 대기방'
         });
 	}
 	
@@ -251,6 +252,7 @@ exports.makeRoom = function(req, res){
 	  		, roomid: room_id
 	  		, roomname: title
 	  		, game_type: game_type
+	  		, title: '인디언 포커 게임방'
 	  	});
 	  };
 	  conn.insertRoom(title, card, room_password, game_type, select_room_id_callback);   	  
@@ -280,6 +282,7 @@ exports.join = function(req, res){
 	    , user_id: req.session.user_id
 	    , game_type: req.params.game_type
 	    , isMaster: req.params.isMaster		
+	    , title: '인디언 포커 게임방'
     });
 };
 

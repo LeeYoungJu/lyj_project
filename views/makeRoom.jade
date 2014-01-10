@@ -2,7 +2,7 @@ extends layout
 
 block content
   - if(isSuccess)    
-    script.      
+    script.            
       location.href = '/join/#{roomname}/#{roomid}/#{game_type}/master';
   - else if(roomname === '')
     script.

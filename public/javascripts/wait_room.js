@@ -115,6 +115,7 @@ $(document).ready(function() {
 				if(data.isSuccess) {
 					var text = '점수 : ' + data.score + '점, 승률  : ' + data.rate + '%';
 					$('#score_rate_box.left').text(text);
+					alert('성공적으로 업데이트하였습니다. 랭킹을 확인하세요!');
 				} else {
 					alert("업데이트를 실패하였습니다.");
 				}
@@ -221,6 +222,7 @@ $(document).ready(function() {
 			e.preventDefault();
 			return;
 		}
+		document.make_room_form.roomname.value = encodeURIComponent(title);
 	});
 		
 	var $page_indicator_box = $('.page_indicator_box');
@@ -370,7 +372,7 @@ $(document).ready(function() {
 		var div = document.createElement('div');
 		div.className = 'room_list';
 		div.info = room;
-		var html = '<div class="room_title_and_enter_button"><div class="room_title left">' + room.room_title + '</div>' +
+		var html = '<div class="room_title_and_enter_button"><div class="room_title left">' + decodeURIComponent(room.room_title) + '</div>' +
 		           '<div class="enter_button left">입장</div></div>';
 		
 		if(room.game_type == 'until_turn') {

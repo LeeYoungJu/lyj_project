@@ -34,10 +34,11 @@ function handleDisconnect(client) {
     // If this said `client =` it wouldn't do what you want. The assignment here is implicitly changed
     // to `global.mysqlClient =` in node.
     conn = mysql.createConnection({
-		host: 'localhost'		
-		, user: 'root'
-		, password: 'mtsm2752!@#'
-		, database: DATABASE
+		host: '10.0.0.1'
+	    , port: '3306'		
+	    , user: 'dmlqhwmddml'
+	    , password: 'mtsm27521928'
+	    , database: DATABASE
 	});    
     handleDisconnect(conn);
     conn.connect();
