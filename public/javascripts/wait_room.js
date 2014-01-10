@@ -210,11 +210,11 @@ $(document).ready(function() {
 		var e = e || window.event;
 		var title = $('#roomname').val();		
 		
-		if(navigator.appName == 'Microsoft Internet Explorer') {
+		/*if(navigator.appName == 'Microsoft Internet Explorer') {
    		    alert('인터넷 익스플로어로는 사용 불가합니다. 죄송합니다.');
    		    e.preventDefault();
    		    return;   			
-   	    }  
+   	    } */ 
    	    
    	    if(title.trim() == '' || !title) {
 			alert('제목을 입력하세요.');
@@ -343,10 +343,11 @@ $(document).ready(function() {
 	});
 	
 	function click_enter_button(e) {
+		/*
 		if(navigator.appName == 'Microsoft Internet Explorer') {
    		    alert('인터넷 익스플로어로는 사용 불가합니다. 죄송합니다.');   		   
    		    return;   			
-   	    }  
+   	    } */ 
 		var e = e || window.event;
 		var self = e.target;
 		var room = self.parentNode.parentNode.info;
